@@ -76,6 +76,7 @@ def main():
     # This snippet will help you get started with the argparse module.
     # TODO need an argument to pick up 'from_dir'
     parser = argparse.ArgumentParser()
+    parser.add_argument('files', help='files to find absolute path for')
     parser.add_argument('--todir', dest='direct', type=str,
                         nargs='+', help='dest dir for special files')
     parser.add_argument('--tozip', dest='zip', type=str,
@@ -85,11 +86,15 @@ def main():
     z = args.zip
 
     if direct:
-        get_special_paths(direct[1])
+        get_special_paths(direct[0])
         copy_to(special_path_list, direct[0])
     elif z:
         get_special_paths(z[1])
         zip_to(special_path_list, z[0])
+    else:
+        get_special_paths(sys.argv[1])
+        for i in special_path_list:
+            print(i + '\n')
 
 
 if __name__ == "__main__":

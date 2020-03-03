@@ -38,7 +38,6 @@ def main():
     # required args, the general rule is to print a usage message and exit(1).
 
     # +++your code here+++
-    # Call your functions
 
 
 if __name__ == "__main__":

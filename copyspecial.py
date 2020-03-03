@@ -14,32 +14,88 @@ import os
 import shutil
 import subprocess
 import argparse
+import zipfile
+import commands
+import sys
 
 # This is to help coaches and graders identify student assignments
-__author__ = "???"
+__author__ = "Patrick Buzzo"
+
+special_path_list = []
+rel_path_list = []
 
 
-# +++your code here+++
-# Write functions and modify main() to call them
+def get_special_paths(dir):
+    if dir == '.':
+        for i in os.listdir('./'):
+            if re.search(r'__\w+__', i):
+                special_path_list.append(os.path.abspath(i))
+        for k in special_path_list:
+            rel_path_list.append(dir[1:] + '/' + os.path.relpath(k))
+    elif dir != '.':
+        for i in os.listdir(dir):
+            if re.search(r'__\w+__', i):
+                special_path_list.append(os.path.abspath(i))
+        for k in special_path_list:
+            rel_path_list.append(dir[1:] + '/' + os.path.relpath(k))
+
+
+def copy_to(paths, dir):
+    if dir == '.':
+        for i in rel_path_list:
+            with open(i[1:], 'r') as f:
+                shutil.copyfile(i[1:], 'copy ' + i[1:])
+                # lines = f.readlines()
+                # with open('copy ' + i[1:], "w") as f1:
+                #     for i in lines:
+                #         f1.write(i)
+    elif dir != '.':
+        for i in rel_path_list:
+            with open(i[1:], 'r') as f:
+                shutil.copyfile(i[1:], dir + 'copy ' + i[1:])
+                # lines = f.readlines()
+                # with open(dir + 'copy ' + i[1:], "w") as f1:
+                #     for i in lines:
+                #         f1.write(i)
+
+
+def zip_to(paths, zippath):
+    cmd = 'zip -j ' + zippath + ' '
+    # for item in paths[:-1]:
+    cmd += paths[0] + ' ' + paths[1]
+    print("Command I'm going to do: " + cmd)
+    (k, i) = commands.getstatusoutput(cmd)
+    if k:
+        sys.stderr.write(k)
+        sys.exit(1)
+    # https://stackoverflow.com/questions/31420317/
+    # how-to-understand-sys-stdout-and-sys-stderr-in-python
+
 
 def main():
     # This snippet will help you get started with the argparse module.
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--todir', help='dest dir for special files')
-    parser.add_argument('--tozip', help='dest zipfile for special files')
     # TODO need an argument to pick up 'from_dir'
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--todir', dest='direct', type=str,
+                        nargs='+', help='dest dir for special files')
+    parser.add_argument('--tozip', dest='zip', type=str,
+                        nargs='+', help='dest zipfile for special files')
     args = parser.parse_args()
+    direct = args.direct
+    z = args.zip
 
-    # TODO you must write your own code to get the cmdline args.
-    # Read the docs and examples for the argparse module about how to do this.
-
-    # Parsing command line arguments is a must-have skill.
-    # This is input data validation.  If something is wrong (or missing) with any
-    # required args, the general rule is to print a usage message and exit(1).
-
-    # +++your code here+++
-    # Call your functions
+    if direct:
+        get_special_paths(direct[1])
+        copy_to(special_path_list, direct[0])
+    elif z:
+        get_special_paths(z[1])
+        zip_to(special_path_list, z[0])
 
 
 if __name__ == "__main__":
     main()
+
+
+# get_special_paths('.')   # TEST
+# copy_to(special_path_list, '.')   # TEST
+# zip_to(special_path_list, 'patholis.zip')  # TEST

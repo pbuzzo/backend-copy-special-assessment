@@ -45,18 +45,15 @@ def copy_to(paths, dir):
         for i in rel_path_list:
             with open(i[1:], 'r') as f:
                 shutil.copyfile(i[1:], 'copy ' + i[1:])
-                # lines = f.readlines()
-                # with open('copy ' + i[1:], "w") as f1:
-                #     for i in lines:
-                #         f1.write(i)
     elif dir != '.':
+        cmd = 'mkdir ' + dir
+        (k, i) = commands.getstatusoutput(cmd)
+        if k:
+            sys.stderr.write(k)
+            sys.exit(1)
         for i in rel_path_list:
             with open(i[1:], 'r') as f:
-                shutil.copyfile(i[1:], dir + 'copy ' + i[1:])
-                # lines = f.readlines()
-                # with open(dir + 'copy ' + i[1:], "w") as f1:
-                #     for i in lines:
-                #         f1.write(i)
+                shutil.copyfile(i[1:], dir + '/' + 'copy ' + i[1:])
 
 
 def zip_to(paths, zippath):
@@ -76,17 +73,18 @@ def main():
     # This snippet will help you get started with the argparse module.
     # TODO need an argument to pick up 'from_dir'
     parser = argparse.ArgumentParser()
-    parser.add_argument('files', help='files to find absolute path for')
     parser.add_argument('--todir', dest='direct', type=str,
-                        nargs='+', help='dest dir for special files')
+                        nargs='+', help='dest dir for special files', default=False)
     parser.add_argument('--tozip', dest='zip', type=str,
-                        nargs='+', help='dest zipfile for special files')
+                        nargs='+', help='dest zipfile for special files', default=False)
+    # parser.add_argument('files', help='files to find absolute path for')
     args = parser.parse_args()
     direct = args.direct
     z = args.zip
 
     if direct:
-        get_special_paths(direct[0])
+        # print('Hello')
+        get_special_paths(direct[1])
         copy_to(special_path_list, direct[0])
     elif z:
         get_special_paths(z[1])
